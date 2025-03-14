@@ -115,7 +115,7 @@ FETCH FIRST 1 ROW ONLY;
 SELECT l.city, COUNT(*) AS total_employees
 FROM hr.employees e
 JOIN hr.departments d ON e.department_id = d.department_id
-JOIN locations l ON d.location_id = l.location_id
+JOIN hr.locations l ON d.location_id = l.location_id
 GROUP BY l.city;
 -- done, executed
 
