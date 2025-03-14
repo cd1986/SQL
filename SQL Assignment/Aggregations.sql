@@ -13,13 +13,12 @@ select department_id, MAX(salary), as max_salary, MIN(Salary) as min_salary
 from employees
 group by department_id;
 
--- 4. fing the total salary paid in department
+-- 4. finding the total salary paid in department
  select department_id, sum(salary), as total_salary
 from employees
 group by department_id;
 
--- 5. Count the number of employees in each job role
--- This query counts the number of employees who have the same job role.
+-- 5. Count the no of employees in each job role
 SELECT job_id, COUNT(*) AS total_employees
 FROM employees
 GROUP BY job_id;
