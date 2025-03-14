@@ -193,6 +193,14 @@ FROM sh.sales
 GROUP BY cust_id
 ORDER BY lowest_purchase_amount ASC; -- Optional: Sort by lowest purchase
 
+-- 10. Count the number of sales transactions for each region.
+SELECT country_region as region, 
+       COUNT(*) AS transaction_count
+FROM sh.COUNTRIES
+GROUP BY region
+ORDER BY transaction_count DESC; -- Optional: Sort by highest transactions
+
+
 
 
 
