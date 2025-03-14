@@ -26,6 +26,7 @@ group by department_id;
 SELECT job_id, COUNT(*) AS total_employees
 FROM hr.employees
 GROUP BY job_id;
+-- done, executed
 
 -- 6. Find the avg salary for each job role
 SELECT job_id, AVG(salary) AS avg_salary
