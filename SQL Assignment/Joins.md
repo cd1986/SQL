@@ -159,6 +159,60 @@ FROM HR.employees e
 FULL OUTER JOIN PROJECTS.projects p ON e.employee_id = p.id;
 -- done, executed but not result
 
+-- 24. Retrieve employees who work in a city where their department is located using INNER JOIN
+SELECT e.employee_id, e.employee_name, l.city
+FROM employees e
+INNER JOIN departments d ON e.department_id = d.department_id
+INNER JOIN locations l ON d.location_id = l.location_id;
+-- not executed, need to check locations table
+
+-- 25. Retrieve employees and their total bonus amount using INNER JOIN with a bonus table
+SELECT e.employee_id, e.employee_name, SUM(b.bonus_amount) AS total_bonus
+FROM employees e
+INNER JOIN bonuses b ON e.employee_id = b.employee_id
+GROUP BY e.employee_id, e.employee_name;
+-- not executed, need to check locations table
+
+-- 26. Retrieve employees who do not have any recorded bonuses using LEFT JOIN
+SELECT e.employee_id, e.employee_name
+FROM employees e
+LEFT JOIN bonuses b ON e.employee_id = b.employee_id
+WHERE b.bonus_amount IS NULL;
+-- not executed, need to check bonuses table
+
+-- 27. Retrieve employees and their department names where employees belong to a specific region using INNER JOIN
+SELECT e.employee_id, e.employee_name, d.department_name, r.region_name
+FROM employees e
+INNER JOIN departments d ON e.department_id = d.department_id
+INNER JOIN locations l ON d.location_id = l.location_id
+INNER JOIN regions r ON l.region_id = r.region_id;
+-- not executed, need to check locations table
+
+
+-- 28. Retrieve employees and their project details, even if they are not assigned to a project using LEFT JOIN
+SELECT e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, p.name
+FROM hr.employees e
+LEFT JOIN PROJECTS.projects p ON e.employee_id = p.id;
+-- done executed but half result got
+
+-- 29. Retrieve departments and the count of employees in each department using INNER JOIN and GROUP BY
+SELECT d.department_id, d.department_name, COUNT(e.employee_id) AS employee_count
+FROM hr.departments d
+LEFT JOIN HR.employees e ON d.department_id = e.department_id
+GROUP BY d.department_id, d.department_name;
+-- done, got the result
+
+-- 30. Retrieve employees who work on projects located in a different city than their department using INNER JOIN
+SELECT e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, d.department_name, p.name, l.city AS project_city
+FROM HR.employees e
+INNER JOIN PROJECTS.projects p ON e.employee_id = p.id
+INNER JOIN HR.departments d ON e.department_id = d.department_id
+INNER JOIN HR.locations l ON p.id = l.location_id
+WHERE d.location_id <> p.id;
+-- done, but did not get the results
+
+
+
 
 
 
