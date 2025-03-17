@@ -23,6 +23,15 @@ FULL OUTER JOIN HR.departments d ON e.department_id = d.department_id;
 --done executed
 
 
+-- 5. Retrieve employees who do not belong to any department using LEFT JOIN with NULL check
+SELECT e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name
+FROM hr.employees e
+LEFT JOIN hr.departments d ON e.department_id = d.department_id
+WHERE d.department_id IS NULL;
+
+
+
+
 
 
 
