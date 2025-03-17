@@ -56,6 +56,13 @@ INNER JOIN hr.departments d ON e.department_id = d.department_id
 INNER JOIN HR.locations l ON d.location_id = l.location_id;
 -- done executed
 
+-- 10. Retrieve employees and the projects they are assigned to using INNER JOIN
+SELECT e.employee_id,CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, p.name
+FROM hr.employees e
+INNER JOIN PROJECTS.projects p ON e.employee_id = p.id;
+-- done executed, but did not get result
+
+
 
 
 
