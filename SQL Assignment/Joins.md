@@ -128,6 +128,47 @@ GROUP BY e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name,
 HAVING COUNT(p.id) > 1;
 -- done executed but did not get the result
 
+-- 19. Retrieve employees along with their salaries and their department budget using INNER JOIN
+SELECT e.employee_id,  CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, e.salary, d.budget
+FROM HR.employees e
+INNER JOIN hr.departments d ON e.department_id = d.department_id;
+-- d.budget, where to get this point, need to check
+
+-- 20. Retrieve employees who earn more than their department’s average salary using INNER JOIN and a subquery
+SELECT e.employee_id,CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, e.salary
+FROM HR.employees e
+INNER JOIN HR.departments d ON e.department_id = d.department_id
+WHERE e.salary > (SELECT AVG(salary) FROM HR.employees WHERE department_id = e.department_id);
+-- done, executed
+
+-- 21. Retrieve employees who have the same job role as another employee using SELF JOIN
+SELECT e1.employee_id, CONCAT(e1.FIRST_NAME, ' ', e1.LAST_NAME) AS employee_name, CONCAT(e2.FIRST_NAME, ' ', e2.LAST_NAME) AS coworker_name, e1.job_id
+FROM HR.employees e1
+INNER JOIN HR.employees e2 ON e1.job_id = e2.job_id AND e1.employee_id <> e2.employee_id;
+-- done, executed
+
+-- 22. Retrieve employees and their department names, but show "Not Assigned" if an employee has no department using LEFT JOIN and COALESCE
+SELECT e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, COALESCE(d.department_name, 'Not Assigned') AS department_name
+FROM hr.employees e
+LEFT JOIN HR.departments d ON e.department_id = d.department_id;
+-- done, executed
+
+-- 23. Retrieve employees and their assigned projects, including employees who are not assigned to any project using FULL OUTER JOIN
+SELECT e.employee_id, CONCAT(e.FIRST_NAME, ' ', e.LAST_NAME) AS employee_name, p.name
+FROM HR.employees e
+FULL OUTER JOIN PROJECTS.projects p ON e.employee_id = p.id;
+-- done, executed but not result
+
+
+
+
+
+
+
+
+
+
+
 
 
 
