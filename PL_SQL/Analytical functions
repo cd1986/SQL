@@ -262,8 +262,52 @@ EXEC Get_Top_3_Highest_Paid
 
 
 Write a query to rank employees within their department by hire date using RANK().
+SELECT 
+    DEPARTMENT_ID, 
+    EMPLOYEE_ID, 
+    FIRST_NAME, 
+    LAST_NAME, 
+    HIRE_DATE,
+    RANK() OVER (PARTITION BY DEPARTMENT_ID ORDER BY HIRE_DATE) AS Hire_Rank
+FROM EMPLOYEES;
+
+
 How can you identify the second-highest salary in each department using DENSE_RANK()?
+SELECT DEPARTMENT_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY, Salary_Rank
+FROM (
+    SELECT 
+        DEPARTMENT_ID, 
+        EMPLOYEE_ID, 
+        FIRST_NAME, 
+        LAST_NAME, 
+        SALARY,
+        DENSE_RANK() OVER (PARTITION BY DEPARTMENT_ID ORDER BY SALARY DESC) AS Salary_Rank
+    FROM EMPLOYEES
+) RankedEmployees
+WHERE Salary_Rank = 2;  -- Filter only second-highest salary
+
+
 Find employees who have the same salary rank within their department using RANK().
+WITH RankedEmployees AS (
+    SELECT 
+        DEPARTMENT_ID, 
+        EMPLOYEE_ID, 
+        FIRST_NAME, 
+        LAST_NAME, 
+        SALARY,
+        RANK() OVER (PARTITION BY DEPARTMENT_ID ORDER BY SALARY DESC) AS Salary_Rank
+    FROM EMPLOYEES
+)
+SELECT * 
+FROM RankedEmployees
+WHERE Salary_Rank IN (
+    SELECT Salary_Rank 
+    FROM RankedEmployees 
+    GROUP BY DEPARTMENT_ID, Salary_Rank 
+    HAVING COUNT(*) > 1  -- Select only ranks that appear more than once
+);
+
+
 How can you return only the employees with the lowest salary in each department using ROW_NUMBER()?
 Write a query to display the cumulative salary rankings for all employees using DENSE_RANK().
 How can you list the employees who fall within the top 5 salaries per department using RANK()?
