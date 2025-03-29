@@ -1,5 +1,266 @@
 Rank, Dense Rank, and Row Number Questions
 How can you find the top 3 highest-paid employees in each job category using ROW_NUMBER()?
+SELECT TABLE_NAME 
+FROM ALL_TABLES 
+WHERE OWNER = 'HR' 
+AND TABLE_NAME = 'EMPLOYEES';
+
+
+CREATE TABLE EMPLOYEES (
+    EMPLOYEE_ID   NUMBER PRIMARY KEY,
+    FIRST_NAME    VARCHAR2(50),
+    LAST_NAME     VARCHAR2(50),
+    EMAIL         VARCHAR2(100),
+    PHONE_NUMBER  VARCHAR2(20),
+    HIRE_DATE     DATE,
+    JOB_ID        VARCHAR2(20),
+    SALARY        NUMBER(10,2),
+    COMMISSION_PCT NUMBER(5,2),
+    MANAGER_ID    NUMBER,
+    DEPARTMENT_ID NUMBER
+);
+
+
+
+INSERT INTO EMPLOYEES VALUES (101, 'John', 'Doe', 'john.doe@example.com', '1234567890', TO_DATE('2020-01-15', 'YYYY-MM-DD'), 'IT_PROG', 6000, NULL, 100, 10);
+INSERT INTO EMPLOYEES VALUES (102, 'Jane', 'Smith', 'jane.smith@example.com', '9876543210', TO_DATE('2019-07-22', 'YYYY-MM-DD'), 'HR_MGR', 7500, NULL, 100, 20);
+INSERT INTO EMPLOYEES VALUES (103, 'Alice', 'Brown', 'alice.brown@example.com', '1122334455', TO_DATE('2021-05-10', 'YYYY-MM-DD'), 'SALES_REP', 5000, 0.05, 102, 30);
+INSERT INTO EMPLOYEES VALUES (104, 'Bob', 'Johnson', 'bob.johnson@example.com', '2233445566', TO_DATE('2018-11-18', 'YYYY-MM-DD'), 'IT_PROG', 6500, NULL, 101, 10);
+INSERT INTO EMPLOYEES VALUES (105, 'Charlie', 'Davis', 'charlie.davis@example.com', '3344556677', TO_DATE('2022-02-28', 'YYYY-MM-DD'), 'HR_MGR', 7200, NULL, 102, 20);
+INSERT INTO EMPLOYEES VALUES (106, 'Daniel', 'Clark', 'daniel.clark@example.com', '4455667788', TO_DATE('2020-09-07', 'YYYY-MM-DD'), 'SALES_REP', 4800, 0.04, 103, 30);
+INSERT INTO EMPLOYEES VALUES (107, 'Emily', 'Evans', 'emily.evans@example.com', '5566778899', TO_DATE('2017-06-13', 'YYYY-MM-DD'), 'IT_PROG', 6700, NULL, 101, 10);
+INSERT INTO EMPLOYEES VALUES (108, 'Frank', 'Wilson', 'frank.wilson@example.com', '6677889900', TO_DATE('2023-03-21', 'YYYY-MM-DD'), 'HR_MGR', 7300, NULL, 102, 20);
+INSERT INTO EMPLOYEES VALUES (109, 'Grace', 'Thomas', 'grace.thomas@example.com', '7788990011', TO_DATE('2019-12-25', 'YYYY-MM-DD'), 'SALES_REP', 5100, 0.03, 103, 30);
+INSERT INTO EMPLOYEES VALUES (110, 'Hank', 'Miller', 'hank.miller@example.com', '8899001122', TO_DATE('2021-08-16', 'YYYY-MM-DD'), 'IT_PROG', 6800, NULL, 101, 10);
+
+COMMIT;
+
+
+
+SELECT * FROM EMPLOYEES;
+
+
+CREATE OR REPLACE PROCEDURE Get_All_Employees IS
+    -- Cursor to fetch employee details
+    CURSOR emp_cursor IS
+        SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, JOB_ID, SALARY 
+        FROM EMPLOYEES;  -- Make sure HR schema is correct
+
+    emp_record emp_cursor%ROWTYPE;  -- Variable to hold each row
+
+BEGIN
+    -- Enable DBMS_OUTPUT for debugging
+    DBMS_OUTPUT.PUT_LINE('Fetching Employee Data...');
+
+    OPEN emp_cursor;
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+
+        -- Print Employee Details
+        DBMS_OUTPUT.PUT_LINE(
+            'EMPLOYEE_ID: ' || emp_record.EMPLOYEE_ID ||
+            ' | NAME: ' || emp_record.FIRST_NAME || ' ' || emp_record.LAST_NAME ||
+            ' | JOB: ' || emp_record.JOB_ID ||
+            ' | SALARY: ' || emp_record.SALARY
+        );
+    END LOOP;
+    CLOSE emp_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('Employee Data Fetch Completed.');
+EXCEPTION
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END Get_All_Employees;
+/
+
+
+
+SET SERVEROUTPUT ON;
+EXEC Get_All_Employees;
+
+
+
+
+CREATE OR REPLACE PROCEDURE Get_First_3_Employees IS
+    -- Cursor to fetch the first 3 employees
+    CURSOR emp_cursor IS
+        SELECT EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+        FROM EMPLOYEES
+        WHERE ROWNUM <= 3;  -- Fetch first 3 rows
+
+    -- Variable to store fetched data
+    emp_record emp_cursor%ROWTYPE;
+
+BEGIN
+    -- Open the cursor
+    OPEN emp_cursor;
+    
+    DBMS_OUTPUT.PUT_LINE('Fetching First 3 Employees...');
+
+    -- Loop through each row
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        -- Print result
+        DBMS_OUTPUT.PUT_LINE(
+            'EMPLOYEE_ID: ' || emp_record.EMPLOYEE_ID ||
+            ' | NAME: ' || emp_record.FIRST_NAME || ' ' || emp_record.LAST_NAME ||
+            ' | SALARY: ' || emp_record.SALARY
+        );
+    END LOOP;
+
+    -- Close cursor
+    CLOSE emp_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('Execution Completed.');
+END Get_First_3_Employees;
+/
+
+
+SET SERVEROUTPUT ON;
+EXEC Get_First_3_Employees;
+
+
+
+
+CREATE OR REPLACE PROCEDURE Get_Top_3_Highest_Paid IS
+    -- Declare cursor to fetch top 3 highest-paid employees per JOB_ID
+    CURSOR emp_cursor IS
+        SELECT JOB_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+        FROM (
+            SELECT JOB_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY,
+                   ROW_NUMBER() OVER (PARTITION BY JOB_ID ORDER BY SALARY DESC) AS RowNum
+            FROM EMPLOYEES  -- No "HR." schema prefix
+        )
+        WHERE RowNum <= 3;  -- Filter only top 3 per JOB_ID
+
+    -- Variable to hold the fetched row
+    emp_record emp_cursor%ROWTYPE;
+
+BEGIN
+    -- Open cursor
+    OPEN emp_cursor;
+    
+    DBMS_OUTPUT.PUT_LINE('Fetching Top 3 Highest Paid Employees per Job...');
+
+    -- Iterate over fetched rows
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        -- Display the output
+        DBMS_OUTPUT.PUT_LINE(
+            'JOB_ID: ' || emp_record.JOB_ID ||
+            ' | EMPLOYEE_ID: ' || emp_record.EMPLOYEE_ID ||
+            ' | NAME: ' || emp_record.FIRST_NAME || ' ' || emp_record.LAST_NAME ||
+            ' | SALARY: ' || emp_record.SALARY
+        );
+    END LOOP;
+
+    -- Close cursor
+    CLOSE emp_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('Execution Completed.');
+END Get_Top_3_Highest_Paid;
+/
+
+
+
+
+CREATE OR REPLACE PROCEDURE Get_Top_3_Highest_Paid IS
+    -- Declare a record type variable to store query results
+    CURSOR emp_cursor IS
+        WITH RankedEmployees AS (
+            SELECT 
+                JOB_ID,
+                EMPLOYEE_ID,
+                FIRST_NAME,
+                LAST_NAME,
+                SALARY,
+                ROW_NUMBER() OVER (PARTITION BY JOB_ID ORDER BY SALARY DESC) AS RowNum
+            FROM EMPLOYEES  -- Removed "HR."
+        )
+        SELECT JOB_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+        FROM RankedEmployees
+        WHERE RowNum <= 3;
+
+    emp_record emp_cursor%ROWTYPE;  -- Record variable to store cursor data
+
+BEGIN
+    OPEN emp_cursor;
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        DBMS_OUTPUT.PUT_LINE(
+            'JOB_ID: ' || emp_record.JOB_ID ||
+            ' | EMPLOYEE_ID: ' || emp_record.EMPLOYEE_ID ||
+            ' | NAME: ' || emp_record.FIRST_NAME || ' ' || emp_record.LAST_NAME ||
+            ' | SALARY: ' || emp_record.SALARY
+        );
+    END LOOP;
+    CLOSE emp_cursor;
+END Get_Top_3_Highest_Paid;
+/
+
+SET SERVEROUTPUT ON;
+EXEC Get_First_3_Employees;
+
+
+
+
+
+
+CREATE OR REPLACE PROCEDURE Get_Top_3_Highest_Paid IS
+    -- Declare cursor to fetch top 3 highest-paid employees per JOB_ID
+    CURSOR emp_cursor IS
+        SELECT JOB_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY
+        FROM (
+            SELECT JOB_ID, EMPLOYEE_ID, FIRST_NAME, LAST_NAME, SALARY,
+                   ROW_NUMBER() OVER (PARTITION BY JOB_ID ORDER BY SALARY DESC) AS RowNum
+            FROM EMPLOYEES  -- No "HR." schema prefix
+        )
+        WHERE RowNum <= 3;  -- Filter only top 3 per JOB_ID
+
+    -- Variable to hold the fetched row
+    emp_record emp_cursor%ROWTYPE;
+
+BEGIN
+    -- Open cursor
+    OPEN emp_cursor;
+    
+    DBMS_OUTPUT.PUT_LINE('Fetching Top 3 Highest Paid Employees per Job...');
+
+    -- Iterate over fetched rows
+    LOOP
+        FETCH emp_cursor INTO emp_record;
+        EXIT WHEN emp_cursor%NOTFOUND;
+        
+        -- Display the output
+        DBMS_OUTPUT.PUT_LINE(
+            'JOB_ID: ' || emp_record.JOB_ID ||
+            ' | EMPLOYEE_ID: ' || emp_record.EMPLOYEE_ID ||
+            ' | NAME: ' || emp_record.FIRST_NAME || ' ' || emp_record.LAST_NAME ||
+            ' | SALARY: ' || emp_record.SALARY
+        );
+    END LOOP;
+
+    -- Close cursor
+    CLOSE emp_cursor;
+
+    DBMS_OUTPUT.PUT_LINE('Execution Completed.');
+END Get_Top_3_Highest_Paid;
+/
+
+
+
+SET SERVEROUTPUT ON;
+EXEC Get_Top_3_Highest_Paid
+
+
+
 Write a query to rank employees within their department by hire date using RANK().
 How can you identify the second-highest salary in each department using DENSE_RANK()?
 Find employees who have the same salary rank within their department using RANK().
