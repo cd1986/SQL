@@ -12,6 +12,8 @@ Retrieve all customers and their sales transactions, including those who have ne
 Retrieve all products and their sales, including those that have never been sold.
 Retrieve all stores and their sales transactions, including stores without sales.
 Retrieve all sales transactions along with payment method details.
+
+
 11-20: Advanced Joins
 Retrieve all customers who have purchased more than one product.
 Retrieve all products that have been purchased by more than one customer.
@@ -35,6 +37,8 @@ Retrieve all stores along with the most frequently sold product.
 Retrieve all sales transactions where the customer used a credit card.
 Retrieve all customers who have made a purchase but have not returned to buy again.
 Oracle SQL - 30 Questions on Analytical Functions
+
+
 1-10: Ranking Functions
 Rank customers based on total purchases made.
 Rank products based on total sales revenue.
@@ -46,6 +50,8 @@ Identify the top-selling product for each month.
 Find the top 5 stores with the highest sales for the past quarter.
 Identify the store with the highest revenue for each region.
 Rank customers by the number of transactions they have made.
+
+
 11-20: Window Functions
 Calculate the running total of sales revenue for each store.
 Calculate the cumulative total sales revenue per region.
@@ -57,6 +63,8 @@ Find the next purchase amount for each customer.
 Compute the average transaction amount for each customer.
 Identify customers whose spending has increased month over month.
 Calculate the average sales revenue per region for the past 12 months.
+
+
 21-30: Advanced Analytical Queries
 Find the total sales revenue per customer over their lifetime.
 Identify customers who made a purchase in every quarter for the past year.
